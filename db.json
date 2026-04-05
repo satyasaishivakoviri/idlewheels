@@ -1,0 +1,23 @@
+{
+  "rides": [
+    {
+      "id": "c1",
+      "_id": "c1",
+      "ownerId": "admin@example.com",
+      "ownerName": "IdleWheels Admin",
+      "carName": "Tesla Model 3",
+      "brand": "Tesla",
+      "model": "Model 3",
+      "location": "Visakhapatnam",
+      "pricePerDay": 5000,
+      "seatingCapacity": 5,
+      "fuelType": "Electric",
+      "transmission": "Automatic",
+      "image": "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&q=80&w=400",
+      "description": "Experience the future of driving with this Tesla Model 3. Perfect for city travel and long trips alike.",
+      "isAvailable": true,
+      "createdAt": "2026-04-05T00:00:00.000Z"
+    }
+  ],
+  "bookings": []
+}
