@@ -2,12 +2,16 @@ import React, { useContext, useState } from 'react'
 import Title from '../../components/owner/Title'
 import { AppContext } from '../../context/AppContext'
 import { assets } from '../../assets/assets'
+import ChatModal from '../../components/ChatModal'
 
 const ManageBookings = () => {
   const { bookings, updateBookingStatus, currency, user } = useContext(AppContext);
   const [selectedIdentity, setSelectedIdentity] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatContext, setChatContext] = useState(null);
 
   // Filter bookings for the current owner's cars
   const myRiderBookings = bookings.filter(booking => booking.ownerId === user?._id || booking.ownerId === user?.email);
@@ -17,6 +21,11 @@ const ManageBookings = () => {
     setIsSuccess(false);
     setSelectedIdentity(null);
   }
+
+  const openChat = (booking) => {
+    setChatContext(booking);
+    setIsChatOpen(true);
+  };
 
   const handleVerify = () => {
     setIsVerifying(true);
@@ -36,98 +45,112 @@ const ManageBookings = () => {
   }
 
   return (
-    <div className='px-4 pt-10 md:px-10 w-full bg-white min-h-screen'>
-      <Title title="Manage Rental Bookings" subTitle="View and confirm rental requests for your cars." />
+    <div className='px-6 pt-12 md:px-12 w-full bg-[#FAFAFB] min-h-screen pb-32'>
+      <div className='flex flex-col md:flex-row justify-between items-end gap-6 mb-16'>
+        <Title title="Manage Fleet Requests" subTitle="Review and authorize upcoming rental requests for your premium vehicles." />
+        <div className='bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4'>
+            <div className='w-2 h-2 bg-primary rounded-full animate-pulse'></div>
+            <p className='text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]'>{myRiderBookings.length} Active Requests</p>
+        </div>
+      </div>
       
-      <div className='max-w-6xl w-full rounded-2xl overflow-hidden border border-bordercolor mt-8 bg-white shadow-sm overflow-x-auto'>
-        <table className='w-full border-collapse text-left text-sm text-gray-600 min-w-[900px]'>
-          <thead className='bg-light text-gray-400 uppercase text-[10px] font-bold tracking-widest'>
-            <tr>
-              <th className='p-5'>Renter</th>
-              <th className='p-5'>Car / Location</th>
-              <th className='p-5'>Duration</th>
-              <th className='p-5'>Earned</th>
-              <th className='p-5'>Status</th>
-              <th className='p-5 text-center'>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {myRiderBookings.length > 0 ? myRiderBookings.map((booking, index) => (
-              <tr key={booking._id || index} className='border-t border-bordercolor hover:bg-gray-50 transition-colors'>
-                <td className='p-5'>
-                  <div className='flex items-center gap-3'>
-                    <img src={assets.user_profile} alt="" className='w-10 h-10 rounded-full border-2 border-primary/10 p-0.5' />
+      <div className='grid grid-cols-1 gap-6 max-w-7xl mx-auto'>
+        {myRiderBookings.length > 0 ? myRiderBookings.map((booking, index) => (
+          <div key={booking._id || index} className='group bg-white rounded-[3rem] border border-gray-100 shadow-sm hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.06)] transition-all duration-700 flex flex-col lg:flex-row overflow-hidden'>
+            
+            {/* Renter Information Section */}
+            <div className='lg:w-1/3 p-10 bg-gray-50/50 border-r border-gray-100'>
+                <p className='text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6'>Renter Information</p>
+                <div className='flex items-center gap-6'>
+                    <div className='relative group/profile'>
+                        <img src={assets.user_profile} alt="" className='w-20 h-20 rounded-3xl border-4 border-white shadow-xl p-0.5 object-cover transition-transform group-hover/profile:scale-105 duration-500' />
+                        <div className='absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center shadow-lg'>
+                            <img src={assets.tick_icon} className='w-2.5 brightness-0 invert' alt="" />
+                        </div>
+                    </div>
                     <div>
-                        <p className='font-bold text-gray-800'>{booking.userName || "Renter"}</p>
-                        <p className='text-[10px] text-gray-400 font-medium uppercase tracking-tighter'>{booking.userEmail}</p>
+                        <p className='text-2xl font-black text-gray-900 tracking-tighter leading-tight'>{booking.userName || "Elite Renter"}</p>
+                        <p className='text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1'>{booking.userEmail}</p>
+                        <div className='mt-4 flex items-center gap-2'>
+                            <span className='px-3 py-1 bg-white border border-gray-100 rounded-full text-[8px] font-black text-primary uppercase tracking-[0.2em] shadow-sm'>Verified Member</span>
+                        </div>
                     </div>
-                  </div>
-                </td>
-                <td className='p-5'>
-                  <div>
-                    <p className='font-bold text-gray-800'>{booking.carName}</p>
-                    <div className='flex items-center gap-1 mt-1 font-bold text-[10px] text-primary uppercase tracking-widest'>
-                        <span>{booking.location || "Visakhapatnam"}</span>
-                    </div>
-                  </div>
-                </td>
-                <td className='p-5'>
-                  <span className='px-3 py-1 bg-primary/5 text-primary rounded-lg font-black text-xs border border-primary/10'>
-                    {booking.numDays || booking.numSeats} Days
-                  </span>
-                </td>
-                <td className='p-5 font-black text-gray-800'>
-                  {currency}{booking.totalPrice}
-                </td>
-                <td className='p-5'>
-                  <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase font-black border ${
-                    booking.status === 'confirmed' ? 'border-green-200 text-green-600 bg-green-50' : 
-                    booking.status === 'cancelled' ? 'border-red-200 text-red-600 bg-red-50' : 
-                    'border-orange-200 text-orange-600 bg-orange-50'
-                  }`}>
-                    {booking.status}
-                  </span>
-                </td>
-                <td className='p-5'>
-                  <div className='flex items-center justify-center gap-3'>
+                </div>
+            </div>
+
+            {/* Experience Details Section */}
+            <div className='lg:w-1/3 p-10 flex flex-col justify-between'>
+                <div>
+                     <p className='text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6'>Experience Details</p>
+                     <p className='text-3xl font-black text-gray-900 tracking-tighter mb-2'>{booking.carName}</p>
+                     <div className='flex items-center gap-3'>
+                        <p className='px-4 py-1.5 bg-gray-900 text-white text-[10px] uppercase font-black tracking-widest rounded-full'>{booking.location || "Visakhapatnam"}</p>
+                        <p className='text-[10px] font-black text-primary uppercase tracking-widest leading-loose'>{booking.numDays} Days Rental</p>
+                     </div>
+                </div>
+                <div className='mt-10 flex items-center gap-4 text-gray-400 font-bold text-[10px] uppercase tracking-[0.2em]'>
+                    <img src={assets.calendar_icon} className='w-4 opacity-30' alt="" />
+                    <span>Starts {new Date(booking.pickupDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+                </div>
+            </div>
+
+            {/* Status & Actions Section */}
+            <div className='lg:w-1/3 p-10 bg-gray-50/10 border-l border-gray-100 flex flex-col justify-between items-end'>
+                <div className='flex flex-col items-end gap-2'>
+                    <span className={`px-6 py-2 rounded-full text-[10px] uppercase font-black shadow-sm border ${
+                        booking.status === 'confirmed' ? 'border-green-100 text-green-600 bg-green-50' : 
+                        booking.status === 'cancelled' ? 'border-red-100 text-red-600 bg-red-50' : 
+                        'border-primary/10 text-primary bg-primary/5'
+                    }`}>
+                        {booking.status}
+                    </span>
+                    <p className='text-4xl font-black text-gray-900 tracking-tighter mt-2'>{currency}{booking.totalPrice}</p>
+                </div>
+
+                <div className='flex gap-3 w-full mt-10 justify-end'>
                     <button 
-                      onClick={() => setSelectedIdentity(booking)} 
-                      className='p-2 hover:bg-blue-50 rounded-xl text-blue-600 transition-all group'
-                      title='View Identity Proof'
+                         onClick={() => openChat(booking)}
+                         className='p-4 bg-white border border-gray-100 hover:border-primary/30 rounded-2xl transition-all shadow-sm group flex items-center gap-2'
+                         title="Message Renter"
                     >
-                      <img src={assets.eye_icon || assets.search_icon} alt="View Identity" className='w-4 h-4 opacity-70 group-hover:opacity-100'/>
+                         <img src={assets.chatbot_icon || assets.search_icon} className='w-5 opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all' alt="" />
+                         <span className='text-[10px] font-black uppercase text-gray-400 group-hover:text-primary transition-colors'>Chat</span>
+                    </button>
+                    <button 
+                         onClick={() => setSelectedIdentity(booking)}
+                         className='p-4 bg-white border border-gray-100 hover:border-primary/30 rounded-2xl transition-all shadow-sm group'
+                         title="View Identity"
+                    >
+                         <img src={assets.search_icon} className='w-5 opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all' alt="" />
                     </button>
                     {booking.status === 'pending' && (
-                      <>
-                        <button 
-                          onClick={() => updateBookingStatus(booking._id, 'confirmed')}
-                          className='p-2 hover:bg-green-50 rounded-xl text-green-600 transition-all group'
-                          title="Confirm Booking"
-                        >
-                          <img src={assets.tick_icon} alt="Confirm" className='w-4 h-4' />
-                        </button>
-                        <button 
-                          onClick={() => updateBookingStatus(booking._id, 'cancelled')}
-                          className='p-2 hover:bg-red-50 rounded-xl text-red-600 transition-all group'
-                          title="Reject Request"
-                        >
-                          <img src={assets.close_icon} alt="Cancel" className='w-4 h-4' />
-                        </button>
-                      </>
+                        <>
+                            <button 
+                                onClick={() => updateBookingStatus(booking._id, 'cancelled')}
+                                className='px-8 py-4 bg-white border border-red-100 text-red-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-red-50 transition-colors'
+                            >
+                                Reject
+                            </button>
+                            <button 
+                                onClick={() => updateBookingStatus(booking._id, 'confirmed')}
+                                className='px-8 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all'
+                            >
+                                Confirm
+                            </button>
+                        </>
                     )}
-                    {booking.status !== 'pending' && <span className='text-gray-300 font-bold'>---</span>}
-                  </div>
-                </td>
-              </tr>
-            )) : (
-              <tr>
-                <td colSpan="6" className='p-20 text-center text-gray-400 italic text-sm'>
-                  No rental requests for your cars yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                </div>
+            </div>
+          </div>
+        )) : (
+          <div className='py-40 border-2 border-dashed border-gray-100 rounded-[5rem] bg-white text-center'>
+            <div className='w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-10 opacity-20'>
+                <img src={assets.listIconColored} className='w-10' alt="" />
+            </div>
+            <h3 className='text-3xl font-black text-gray-900 tracking-tighter'>No Pending Fleet Requests</h3>
+            <p className='text-gray-400 font-bold uppercase text-[10px] tracking-widest mt-4'>Direct rental inquiries will appear here.</p>
+          </div>
+        )}
       </div>
 
       {selectedIdentity && (
@@ -171,7 +194,7 @@ const ManageBookings = () => {
                   {selectedIdentity.aadhaarImage ? (
                     <img src={selectedIdentity.aadhaarImage} alt="Identity Proof" className='w-full h-auto max-h-56 object-cover rounded-2xl border border-gray-200 shadow-sm' />
                   ) : (
-                    <div className='w-full h-32 bg-gray-50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center text-gray-400 text-sm font-bold shadow-sm'>
+                    <div className='w-full h-32 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col items-center justify-center text-gray-400 text-sm font-bold shadow-sm'>
                       <img src={assets.cautionIconColored || assets.close_icon} className='w-6 h-6 mb-2 opacity-50 grayscale' alt="" />
                       No Image Uploaded
                     </div>
@@ -199,6 +222,12 @@ const ManageBookings = () => {
           </div>
         </div>
       )}
+
+      <ChatModal 
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        context={chatContext}
+      />
     </div>
   )
 }

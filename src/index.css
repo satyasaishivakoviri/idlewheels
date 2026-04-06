@@ -43,3 +43,22 @@ p, button, input, label, h1, h2, h3 {
   from { transform: scale(0.85); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+
+/* Leaflet Custom Styles */
+.leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+.custom-popup .leaflet-popup-tip-container {
+  display: none !important;
+}
+.custom-marker-transparent {
+  background: transparent !important;
+  border: none !important;
+}

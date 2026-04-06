@@ -6,6 +6,7 @@ const AppContextProvider = (props) => {
     // Persistent state initialization for Car Rental (IdleWheels)
     const [rides, setRides] = useState([]);
     const [bookings, setBookings] = useState([]);
+    const [messages, setMessages] = useState([]);
 
     const [user, setUser] = useState(() => {
         const savedUser = localStorage.getItem('idle_user');
@@ -20,7 +21,7 @@ const AppContextProvider = (props) => {
     });
 
     const currency = import.meta.env.VITE_CURRENCY || "₹";
-    const DB_URL = "http://localhost:5000";
+    const DB_URL = "/api";
 
     // Fetch initial data from DB
     useEffect(() => {
@@ -33,6 +34,11 @@ const AppContextProvider = (props) => {
             .then(res => res.json())
             .then(data => setBookings(data))
             .catch(err => console.error("Error fetching bookings:", err));
+
+        fetch(`${DB_URL}/messages`)
+            .then(res => res.json())
+            .then(data => setMessages(data))
+            .catch(err => console.error("Error fetching messages:", err));
     }, []);
 
     // Sync only user to localStorage
@@ -101,6 +107,37 @@ const AppContextProvider = (props) => {
         } catch(e) { console.error(e); }
     };
 
+    // Messaging Management
+    const sendMessage = async (messageData) => {
+        messageData.id = messageData._id || `m${Date.now()}`;
+        messageData.timestamp = new Date().toISOString();
+        messageData.isRead = false;
+        
+        try {
+            await fetch(`${DB_URL}/messages`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(messageData)
+            });
+            setMessages((prev) => [...prev, messageData]);
+        } catch(e) { console.error(e); }
+    };
+
+    const markMessageRead = async (messageId) => {
+        try {
+            await fetch(`${DB_URL}/messages/${messageId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ isRead: true })
+            });
+            setMessages((prev) =>
+                prev.map((msg) =>
+                    msg._id === messageId ? { ...msg, isRead: true } : msg
+                )
+            );
+        } catch(e) { console.error(e); }
+    };
+
     // Update Dashboard Data
     useEffect(() => {
         const myCars = user ? rides.filter(r => r.ownerId === user.email || r.ownerId === user._id) : [];
@@ -122,6 +159,8 @@ const AppContextProvider = (props) => {
         setRides,
         bookings,
         setBookings,
+        messages,
+        setMessages,
         dashboardData,
         user,
         login,
@@ -130,6 +169,8 @@ const AppContextProvider = (props) => {
         deleteRide,
         addBooking,
         updateBookingStatus,
+        sendMessage,
+        markMessageRead,
         currency
     };
 

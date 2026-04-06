@@ -5,6 +5,7 @@ import Loader from '../components/Loader';
 import { AppContext } from '../context/AppContext';
 import { validateAadhaar } from '../utils/validation';
 import { useToast } from '../context/ToastContext';
+import VideoModal from '../components/VideoModal';
 
 const RideDetails = ({ setShowLogin }) => {
   
@@ -19,6 +20,7 @@ const RideDetails = ({ setShowLogin }) => {
   const [startDate, setStartDate] = useState(getToday());
   const [endDate, setEndDate] = useState(getToday());
   const [numDays, setNumDays] = useState(1);
+  const [showVideo, setShowVideo] = useState(false);
 
   // Sync dates with numDays if dates change directly via picker
   useEffect(() => {
@@ -98,6 +100,7 @@ const RideDetails = ({ setShowLogin }) => {
         _id: Date.now().toString(),
         carId: ride._id,
         carName: ride.carName,
+        image: ride.image,
         location: ride.location,
         dateTime: new Date().toISOString(),
         pickupDate: startDate,
@@ -139,7 +142,23 @@ const RideDetails = ({ setShowLogin }) => {
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16'>
         <div className='lg:col-span-2'>
           <div className='relative group'>
-            <img src={ride.image} alt="" className='w-full h-auto md:max-h-120 object-cover rounded-[2.5rem] mb-10 shadow-2xl transition-all duration-700' />
+            <img src={ride.image} alt="" className='w-full h-auto md:max-h-120 object-cover rounded-[2.5rem] mb-10 shadow-2xl transition-all duration-700 hover:brightness-90' />
+            
+            {/* High-Resolution Watch Demo Button */}
+            {ride.videoUrl && (
+                <div 
+                    onClick={() => setShowVideo(true)}
+                    className='absolute inset-0 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-500'
+                >
+                    <div className='bg-primary text-white p-6 rounded-full shadow-2xl transform scale-75 group-hover:scale-100 transition-transform duration-500 flex items-center gap-4 border-4 border-white/20 backdrop-blur-sm'>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5.147v14l11-7-11-7z" />
+                        </svg>
+                        <span className='text-lg font-black uppercase tracking-widest pr-2'>Watch Video Demo</span>
+                    </div>
+                </div>
+            )}
+
             <div className='absolute top-6 left-6 flex gap-3'>
                 <span className='bg-white/90 backdrop-blur-md text-primary text-xs font-black px-5 py-2 rounded-full shadow-lg uppercase tracking-widest'>
                     {ride.brand} {ride.model}
@@ -393,6 +412,12 @@ const RideDetails = ({ setShowLogin }) => {
         </div>
       )}
       
+      <VideoModal 
+        isOpen={showVideo} 
+        onClose={() => setShowVideo(false)} 
+        videoUrl={ride.videoUrl} 
+        carName={ride.carName} 
+      />
     </div>
   ) : <Loader />
 }

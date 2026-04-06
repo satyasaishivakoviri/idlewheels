@@ -46,7 +46,12 @@ const Navbar = ({setShowLogin}) => {
               <div className="flex items-center gap-4">
                 <span className="hidden lg:block text-xs font-black uppercase tracking-widest text-primary bg-primary/5 px-3 py-1.5 rounded-full border border-primary/10">Hi, {user.name.split(' ')[0]}</span>
                 <button 
-                  onClick={() => { logout(); navigate('/'); }} 
+                  onClick={() => { 
+                    if(window.confirm("Are you sure you want to logout?")) {
+                      logout(); 
+                      navigate('/'); 
+                    }
+                  }} 
                   className="cursor-pointer px-6 py-2 border-2 border-bordercolor hover:border-red-100 hover:text-red-500 transition-all font-bold rounded-xl text-gray-800"
                 >
                   Logout

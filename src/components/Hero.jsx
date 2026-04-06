@@ -4,13 +4,12 @@ import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
     const navigate = useNavigate();
-    const [fromLocation, setFromLocation] = useState('');
-    const [toLocation, setToLocation] = useState('');
+    const [location, setLocation] = useState('');
     const [date, setDate] = useState('');
 
     const handleSearch = (e) => {
         e.preventDefault();
-        navigate(`/rides?from=${fromLocation}&to=${toLocation}&date=${date}`);
+        navigate(`/rides?location=${location}&date=${date}`);
     }
 
     return (
@@ -27,45 +26,28 @@ const Hero = () => {
             <form onSubmit={handleSearch} className='flex flex-col lg:flex-row items-center justify-between p-2 lg:p-4 rounded-3xl lg:rounded-full w-full max-w-5xl bg-white shadow-[0px_20px_50px_rgba(0,0,0,0.1)] border border-white/50 backdrop-blur-sm'>
                 <div className='flex flex-col lg:flex-row items-center gap-6 lg:gap-12 w-full lg:px-8 py-4 lg:py-0'>
                     
-                    {/* Pickup Section */}
-                    <div className='flex flex-col items-start gap-1 w-full lg:w-auto'>
-                        <label className='text-[10px] font-bold uppercase text-primary tracking-widest ml-1'>Pickup</label>
-                        <select 
+                    {/* Location Section */}
+                    <div className='flex flex-col items-start gap-1 w-full lg:w-1/2'>
+                        <label className='text-[10px] font-bold uppercase text-primary tracking-widest ml-1 cursor-text'>Where</label>
+                        <input 
+                            type="text"
                             required 
-                            className='bg-transparent text-gray-800 font-bold outline-none cursor-pointer w-full lg:w-40'
-                            value={fromLocation} 
-                            onChange={(e) => setFromLocation(e.target.value)}
-                        >
-                            <option value="">Pickup City</option>
-                            {cityList.map((city) => <option key={city} value={city}>{city}</option>)}
-                        </select>
+                            placeholder="City or Neighborhood"
+                            className='bg-transparent text-gray-800 font-bold outline-none w-full placeholder-gray-400 text-lg'
+                            value={location} 
+                            onChange={(e) => setLocation(e.target.value)}
+                        />
                     </div>
 
-                    <div className='hidden lg:block h-8 w-[1px] bg-gray-200'></div>
-
-                    {/* Return Section */}
-                    <div className='flex flex-col items-start gap-1 w-full lg:w-auto'>
-                        <label className='text-[10px] font-bold uppercase text-primary tracking-widest ml-1'>Return</label>
-                        <select 
-                            required 
-                            className='bg-transparent text-gray-800 font-bold outline-none cursor-pointer w-full lg:w-40'
-                            value={toLocation} 
-                            onChange={(e) => setToLocation(e.target.value)}
-                        >
-                            <option value="">Return City</option>
-                            {cityList.map((city) => <option key={city} value={city}>{city}</option>)}
-                        </select>
-                    </div>
-
-                    <div className='hidden lg:block h-8 w-[1px] bg-gray-200'></div>
+                    <div className='hidden lg:block h-12 w-[1px] bg-gray-200 rounded-full'></div>
 
                     {/* Date Section */}
-                    <div className='flex flex-col items-start gap-1 w-full lg:w-auto'>
-                        <label className='text-[10px] font-bold uppercase text-primary tracking-widest ml-1'>When</label>
+                    <div className='flex flex-col items-start gap-1 w-full lg:w-1/2'>
+                        <label className='text-[10px] font-bold uppercase text-primary tracking-widest ml-1 cursor-pointer'>When</label>
                         <input 
                             type='date' 
                             required 
-                            className='bg-transparent text-gray-800 font-bold outline-none cursor-pointer w-full'
+                            className='bg-transparent text-gray-800 font-bold outline-none cursor-pointer w-full text-lg'
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
                             min={new Date().toISOString().split("T")[0]} 

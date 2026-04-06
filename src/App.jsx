@@ -14,6 +14,7 @@ import Welcome from './pages/owner/Welcome';
 import About from './pages/About';
 import Footer from './components/Footer';
 import LoginModal from './components/LoginModal';
+import AIChatbot from './components/AIChatbot';
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -22,6 +23,7 @@ const App = () => {
     <>
       <LoginModal showLogin={showLogin} setShowLogin={setShowLogin} />
       {!isOwnerPath && <Navbar setShowLogin={setShowLogin}/> }
+      {!isOwnerPath && <AIChatbot />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/rides" element={<RideListings />} />
